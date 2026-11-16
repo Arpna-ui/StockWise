@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -12,13 +12,16 @@ import {
   Shield,
   Wallet,
   X,
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useWallet } from '../../context/WalletContext';
+import { BeginnerGlossaryModal } from '../common/BeginnerGlossaryModal';
 
 export const Sidebar = ({ isOpen, onClose }) => {
   const { user } = useAuth();
   const { wallet } = useWallet();
+  const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -117,6 +120,36 @@ export const Sidebar = ({ isOpen, onClose }) => {
         })}
       </nav>
 
+      {/* Beginner Handbook Button */}
+      <div style={{ padding: '0 12px 12px' }}>
+        <button
+          type="button"
+          onClick={() => {
+            setIsGlossaryOpen(true);
+            if (onClose) onClose();
+          }}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+            border: '1px solid rgba(37, 99, 235, 0.25)',
+            color: 'var(--color-primary-blue)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            textAlign: 'left',
+          }}
+        >
+          <BookOpen size={18} style={{ flexShrink: 0 }} />
+          <div>
+            <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>Beginner Handbook</div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Jargon-free trading guide</div>
+          </div>
+        </button>
+      </div>
+
       {/* Virtual Account Balance Pill */}
       <div style={{ padding: '16px', borderTop: '1px solid var(--border-subtle)' }}>
         <div
@@ -156,6 +189,12 @@ export const Sidebar = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
+
+      {/* Beginner Glossary Modal */}
+      <BeginnerGlossaryModal
+        isOpen={isGlossaryOpen}
+        onClose={() => setIsGlossaryOpen(false)}
+      />
     </aside>
   );
 };

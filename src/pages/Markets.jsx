@@ -22,8 +22,12 @@ import {
   HeartPulse,
   Flame,
   ShoppingBag,
+  BookOpen,
+  Sparkles,
 } from 'lucide-react';
 import { Badge } from '../components/common/Badge';
+import { InfoTooltip } from '../components/common/InfoTooltip';
+import { BeginnerGlossaryModal } from '../components/common/BeginnerGlossaryModal';
 import { QuickTradeModal } from '../components/trade/QuickTradeModal';
 import { useToast } from '../components/common/Toast';
 import { ALL_STOCKS } from '../mockData/marketData';
@@ -65,6 +69,7 @@ export const Markets = () => {
   const [selectedStock, setSelectedStock] = useState(null);
   const [tradeType, setTradeType] = useState('BUY');
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
+  const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
 
   // Sections configuration as required
   const SECTIONS = [
@@ -293,6 +298,15 @@ export const Markets = () => {
             <span>{dataSource === 'LIVE' ? 'Live NSE/BSE Feed' : 'Verified Sample Data'}</span>
           </div>
 
+          {/* Beginner Guide Pill */}
+          <button
+            onClick={() => setIsGlossaryOpen(true)}
+            className="btn-secondary"
+            style={{ padding: '6px 12px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <BookOpen size={14} color="var(--color-primary-blue)" /> 🎓 Beginner Guide
+          </button>
+
           {/* View Mode Toggle */}
           <div
             style={{
@@ -343,7 +357,25 @@ export const Markets = () => {
         </div>
       </div>
 
-      {/* Required Section Navigation Tabs */}
+      {/* Beginner Helper Banner */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          padding: '12px 18px',
+          backgroundColor: 'rgba(37, 99, 235, 0.08)',
+          border: '1px solid rgba(37, 99, 235, 0.25)',
+          borderRadius: 'var(--border-radius-sm)',
+          fontSize: '0.84rem',
+        }}
+      >
+        <Sparkles size={18} color="var(--color-primary-blue)" style={{ flexShrink: 0 }} />
+        <div style={{ color: 'var(--text-secondary)' }}>
+          <strong style={{ color: 'var(--text-primary)' }}>Beginner Tip: </strong>
+          Filter by industry sectors below (e.g. <b>IT</b>, <b>Banking</b>, or <b>Automobile</b>). For safe first-time practice, start with familiar large companies like <b>TCS</b> or <b>Reliance</b>, click <b>Buy</b>, and test your trading instincts!
+        </div>
+      </div>
       <div
         className="card"
         style={{
@@ -551,11 +583,36 @@ export const Markets = () => {
                   <th>Company & Ticker</th>
                   <th>Exchange</th>
                   <th>Sector</th>
-                  <th>Last Price</th>
-                  <th>Day Change</th>
-                  <th>Volume</th>
-                  <th>Market Cap</th>
-                  <th>P/E</th>
+                  <th>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Last Price
+                      <InfoTooltip title="Last Price" text="Current live quote per share on the stock exchange." />
+                    </span>
+                  </th>
+                  <th>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Day Change
+                      <InfoTooltip title="Day Change" text="Price change today compared to yesterday's closing price. Green is gain; red is drop." />
+                    </span>
+                  </th>
+                  <th>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Volume
+                      <InfoTooltip title="Trading Volume" text="Total quantity of shares traded today on the market." />
+                    </span>
+                  </th>
+                  <th>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Market Cap
+                      <InfoTooltip title="Market Capitalization" text="Total company value. Large Cap (>₹20,000 Cr) companies are typically safer for beginners." />
+                    </span>
+                  </th>
+                  <th>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      P/E
+                      <InfoTooltip title="P/E Ratio" text="Price-to-Earnings valuation ratio. Lower P/E often indicates good value." />
+                    </span>
+                  </th>
                   <th style={{ textAlign: 'right' }}>Quick Actions</th>
                 </tr>
               </thead>
@@ -872,6 +929,12 @@ export const Markets = () => {
         onClose={() => setIsTradeModalOpen(false)}
         stock={selectedStock}
         defaultType={tradeType}
+      />
+
+      {/* Beginner Glossary Modal */}
+      <BeginnerGlossaryModal
+        isOpen={isGlossaryOpen}
+        onClose={() => setIsGlossaryOpen(false)}
       />
     </div>
   );

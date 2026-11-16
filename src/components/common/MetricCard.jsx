@@ -1,5 +1,6 @@
 import React from 'react';
 import { Badge } from './Badge';
+import { InfoTooltip } from './InfoTooltip';
 
 export const MetricCard = ({
   title,
@@ -9,12 +10,21 @@ export const MetricCard = ({
   changePercent,
   icon: Icon,
   accentColor,
+  infoTooltip,
 }) => {
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
           {title}
+          {infoTooltip && (
+            <InfoTooltip
+              title={infoTooltip.title || title}
+              text={infoTooltip.text}
+              tip={infoTooltip.tip}
+              size={13}
+            />
+          )}
         </span>
         {Icon && (
           <div

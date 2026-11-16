@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { StockChart } from '../components/charts/StockChart';
 import { Badge } from '../components/common/Badge';
+import { InfoTooltip } from '../components/common/InfoTooltip';
 import { useToast } from '../components/common/Toast';
 import { useWallet } from '../context/WalletContext';
 import { OrderReceiptModal } from '../components/trade/OrderReceiptModal';
@@ -148,6 +149,13 @@ export const StockDetails = () => {
   // Validation
   const isInsufficientFunds = orderType === 'BUY' && orderTotal > availableBalance;
   const isInsufficientShares = orderType === 'SELL' && (ownedShares === 0 || quantity > ownedShares);
+
+  // Beginner calculations
+  const remainingCashAfterOrder = Math.max(0, availableBalance - orderTotal);
+  const avgBuyPrice = userHolding ? Number(userHolding.averageBuyPrice || 0) : 0;
+  const sellDiffPerShare = priceToUse - avgBuyPrice;
+  const totalSellDiff = sellDiffPerShare * (Number(quantity) || 1);
+  const sellDiffPercent = avgBuyPrice > 0 ? ((priceToUse - avgBuyPrice) / avgBuyPrice) * 100 : 0;
 
   const handleQuickPercent = (pct) => {
     if (ownedShares <= 0) return;
@@ -501,7 +509,14 @@ export const StockDetails = () => {
 
           {/* Range Sliders: Day Range & 52-Week Range */}
           <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Performance Ranges</h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Performance Ranges</h3>
+              <InfoTooltip
+                title="What are Price Ranges?"
+                text="The low and high boundaries this stock traded between. Shows if the current price is near its day/year low or high."
+                tip="Buying near a 52-week low might mean a bargain, but check why the price fell!"
+              />
+            </div>
 
             {/* Day Low / High Range */}
             <div>
@@ -552,7 +567,13 @@ export const StockDetails = () => {
 
           {/* Fundamentals & Key Ratios */}
           <div className="card">
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '14px' }}>Fundamentals & Key Ratios</h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Fundamentals & Key Ratios</h3>
+              <InfoTooltip
+                title="Beginner Fundamental Guide"
+                text="These metrics show company size (Market Cap), valuation (P/E), and trading activity (Volume)."
+              />
+            </div>
             <div
               style={{
                 display: 'grid',
@@ -561,27 +582,63 @@ export const StockDetails = () => {
               }}
             >
               <div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Market Cap</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>Market Cap</span>
+                  <InfoTooltip
+                    title="Market Capitalization"
+                    text="Total market worth of all company shares. Large Cap (>₹20,000 Cr) are stable giants like Reliance, TCS, and Infosys."
+                  />
+                </div>
                 <div className="mono-num" style={{ fontWeight: 700, fontSize: '0.95rem' }}>{stock.marketCap}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>P/E Ratio</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>P/E Ratio</span>
+                  <InfoTooltip
+                    title="Price-to-Earnings (P/E)"
+                    text="How much you pay for ₹1 of annual company profit. Lower P/E can mean good value, while higher P/E reflects high growth expectations."
+                  />
+                </div>
                 <div className="mono-num" style={{ fontWeight: 700, fontSize: '0.95rem' }}>{stock.pe}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Trading Volume</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>Trading Volume</span>
+                  <InfoTooltip
+                    title="Trading Volume"
+                    text="Number of shares traded today. Higher volume means high liquidity — easy to buy or sell without delay."
+                  />
+                </div>
                 <div className="mono-num" style={{ fontWeight: 700, fontSize: '0.95rem' }}>{stock.volume}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Open Price</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>Open Price</span>
+                  <InfoTooltip
+                    title="Opening Price"
+                    text="The share price when the market opened at 9:15 AM today."
+                  />
+                </div>
                 <div className="mono-num" style={{ fontWeight: 700, fontSize: '0.95rem' }}>₹{stock.openPrice || stock.price}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Previous Close</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>Previous Close</span>
+                  <InfoTooltip
+                    title="Previous Close"
+                    text="The final price this stock traded at when the market closed yesterday at 3:30 PM."
+                  />
+                </div>
                 <div className="mono-num" style={{ fontWeight: 700, fontSize: '0.95rem' }}>₹{stock.prevClose || stock.price}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Exchange</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>Exchange</span>
+                  <InfoTooltip
+                    title="Stock Exchange"
+                    text="The official marketplace where this stock is traded (NSE = National Stock Exchange, BSE = Bombay Stock Exchange)."
+                  />
+                </div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{stock.exchange || 'NSE'}</div>
               </div>
             </div>
@@ -593,6 +650,21 @@ export const StockDetails = () => {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6' }}>
               {stock.about || 'Leading publicly traded Indian corporation listed on the National Stock Exchange of India and Bombay Stock Exchange.'}
             </p>
+            <div
+              style={{
+                marginTop: '12px',
+                padding: '10px 12px',
+                backgroundColor: 'var(--bg-secondary)',
+                borderRadius: '6px',
+                fontSize: '0.78rem',
+                color: 'var(--text-secondary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <span>💡 <b>Beginner Tip:</b> Investing in established sector leaders like {stock.name} helps build a steady, lower-volatility foundation in your portfolio.</span>
+            </div>
           </div>
         </div>
 
@@ -777,34 +849,48 @@ export const StockDetails = () => {
               </div>
             )}
 
-            {/* Calculation summary */}
+            {/* Calculation summary & Beginner Breakdown */}
             <div
               style={{
                 backgroundColor: 'var(--bg-secondary)',
-                padding: '12px',
+                padding: '12px 14px',
                 borderRadius: 'var(--border-radius-sm)',
-                fontSize: '0.82rem',
+                fontSize: '0.8rem',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '6px',
+                borderLeft: `4px solid ${orderType === 'BUY' ? 'var(--color-profit)' : 'var(--color-loss)'}`,
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Executed Price:</span>
+                <span style={{ color: 'var(--text-muted)' }}>Price per Share:</span>
                 <span className="mono-num">₹{priceToUse.toFixed(2)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '6px' }}>
                 <span style={{ fontWeight: 600 }}>Total Order Value:</span>
                 <span className="mono-num" style={{ fontWeight: 800, color: orderType === 'BUY' ? 'var(--color-profit)' : 'var(--color-loss)' }}>
-                  ₹{orderTotal.toFixed(2)}
+                  ₹{orderTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Available Virtual Margin:</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Wallet After Trade:</span>
                 <span className="mono-num" style={{ color: 'var(--color-profit)', fontWeight: 700 }}>
-                  ₹{availableBalance.toFixed(2)}
+                  ₹{orderType === 'BUY' ? remainingCashAfterOrder.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : (availableBalance + orderTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
               </div>
+
+              {/* Beginner outcome note */}
+              {orderType === 'BUY' ? (
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '4px', borderTop: '1px dashed var(--border-subtle)', paddingTop: '6px' }}>
+                  💡 <i>Buying {quantity} {quantity === 1 ? 'share' : 'shares'} with virtual cash. When {stock.symbol} rises above ₹{priceToUse.toFixed(2)}, you will make a profit!</i>
+                </div>
+              ) : ownedShares > 0 ? (
+                <div style={{ fontSize: '0.74rem', marginTop: '4px', borderTop: '1px dashed var(--border-subtle)', paddingTop: '6px' }}>
+                  <span className={totalSellDiff >= 0 ? 'profit-text' : 'loss-text'} style={{ fontWeight: 700 }}>
+                    {totalSellDiff >= 0 ? `🎉 Estimated Profit: +₹${totalSellDiff.toFixed(2)} (+${sellDiffPercent.toFixed(2)}%)` : `⚠️ Estimated Loss: -₹${Math.abs(totalSellDiff).toFixed(2)} (${sellDiffPercent.toFixed(2)}%)`}
+                  </span>
+                </div>
+              ) : null}
             </div>
 
             {/* Validation alerts */}

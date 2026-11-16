@@ -4,7 +4,19 @@ import { useToast } from '../common/Toast';
 import { useWallet } from '../../context/WalletContext';
 import { api } from '../../services/api';
 import { OrderReceiptModal } from './OrderReceiptModal';
-import { ShieldCheck, Info, RefreshCw, AlertCircle } from 'lucide-react';
+import { InfoTooltip } from '../common/InfoTooltip';
+import {
+  ShieldCheck,
+  Info,
+  RefreshCw,
+  AlertCircle,
+  Zap,
+  Layers,
+  Sparkles,
+  TrendingUp,
+  TrendingDown,
+  CheckCircle2,
+} from 'lucide-react';
 
 export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' }) => {
   const [tradeType, setTradeType] = useState(defaultType); // BUY or SELL
@@ -68,7 +80,12 @@ export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' })
   const currentPrice = orderType === 'MARKET' ? Number(stock.price) : Number(limitPrice) || Number(stock.price);
   const totalAmount = currentPrice * (Number(quantity) || 1);
   const virtualCashAvailable = Number(wallet.availableBalance || 100000.0);
+  const remainingCashAfterBuy = Math.max(0, virtualCashAvailable - totalAmount);
   const ownedShares = userHolding ? Number(userHolding.shares || 0) : 0;
+  const avgBuyPrice = userHolding ? Number(userHolding.averageBuyPrice || 0) : 0;
+  const sellProfitLossPerShare = currentPrice - avgBuyPrice;
+  const totalSellProfitLoss = sellProfitLossPerShare * (Number(quantity) || 1);
+  const sellProfitLossPercent = avgBuyPrice > 0 ? ((currentPrice - avgBuyPrice) / avgBuyPrice) * 100 : 0;
 
   // Validation checks
   const isInsufficientFunds = tradeType === 'BUY' && totalAmount > virtualCashAvailable;
@@ -150,7 +167,7 @@ export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' })
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} title={`Virtual Trade: ${stock.symbol}`}>
-        <form onSubmit={handleExecute} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleExecute} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {/* Trade Type Switcher */}
           <div
             style={{
@@ -177,9 +194,13 @@ export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' })
                 color: tradeType === 'BUY' ? '#FFFFFF' : 'var(--text-secondary)',
                 border: 'none',
                 cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
               }}
             >
-              BUY
+              <TrendingUp size={15} /> BUY (Invest)
             </button>
             <button
               type="button"
@@ -196,9 +217,13 @@ export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' })
                 color: tradeType === 'SELL' ? '#FFFFFF' : 'var(--text-secondary)',
                 border: 'none',
                 cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
               }}
             >
-              SELL
+              <TrendingDown size={15} /> SELL (Lock Profit)
             </button>
           </div>
 
@@ -254,42 +279,89 @@ export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' })
                 </span>
                 {ownedShares > 0 && userHolding && (
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    (Avg: ₹{userHolding.averageBuyPrice.toFixed(2)})
+                    (Bought @ ₹{avgBuyPrice.toFixed(2)})
                   </span>
                 )}
               </div>
             </div>
           )}
 
-          {/* Order Type Toggle */}
-          <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="orderType"
-                value="MARKET"
-                checked={orderType === 'MARKET'}
-                onChange={() => setOrderType('MARKET')}
+          {/* Order Type Toggle with Beginner Guide */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Execution Method:</span>
+              <InfoTooltip
+                title="Market vs Limit Order"
+                text="Market Order executes instantly at the best current price. Limit Order lets you pick your target price and waits for the market to reach it."
+                tip="Beginners should use Market Order for immediate execution."
               />
-              Market Order
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="orderType"
-                value="LIMIT"
-                checked={orderType === 'LIMIT'}
-                onChange={() => setOrderType('LIMIT')}
-              />
-              Limit Order
-            </label>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <label
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '8px 10px',
+                  borderRadius: '6px',
+                  border: `1px solid ${orderType === 'MARKET' ? 'var(--color-primary-blue)' : 'var(--border-subtle)'}`,
+                  backgroundColor: orderType === 'MARKET' ? 'rgba(37, 99, 235, 0.06)' : 'transparent',
+                  cursor: 'pointer',
+                  fontSize: '0.82rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}>
+                  <input
+                    type="radio"
+                    name="orderType"
+                    value="MARKET"
+                    checked={orderType === 'MARKET'}
+                    onChange={() => setOrderType('MARKET')}
+                  />
+                  <span>Market Order</span>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: '20px', marginTop: '2px' }}>
+                  ⚡ Instant at ₹{Number(stock.price).toFixed(2)}
+                </span>
+              </label>
+
+              <label
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '8px 10px',
+                  borderRadius: '6px',
+                  border: `1px solid ${orderType === 'LIMIT' ? 'var(--color-primary-blue)' : 'var(--border-subtle)'}`,
+                  backgroundColor: orderType === 'LIMIT' ? 'rgba(37, 99, 235, 0.06)' : 'transparent',
+                  cursor: 'pointer',
+                  fontSize: '0.82rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}>
+                  <input
+                    type="radio"
+                    name="orderType"
+                    value="LIMIT"
+                    checked={orderType === 'LIMIT'}
+                    onChange={() => setOrderType('LIMIT')}
+                  />
+                  <span>Limit Order</span>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: '20px', marginTop: '2px' }}>
+                  🎯 Target price you choose
+                </span>
+              </label>
+            </div>
           </div>
 
           {/* Input fields */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                Quantity (Shares)
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                <span>Quantity (Number of Shares)</span>
+                <InfoTooltip
+                  title="Share Quantity"
+                  text="How many units of the company you want to buy or sell. Must be a whole number (1, 2, 3...)."
+                />
               </label>
               <input
                 type="number"
@@ -311,8 +383,12 @@ export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' })
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                Price (₹)
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                <span>Execution Price (₹)</span>
+                <InfoTooltip
+                  title="Execution Price"
+                  text="The price per share you are paying. For Market orders, this is locked to the live market quote."
+                />
               </label>
               <input
                 type="number"
@@ -337,7 +413,7 @@ export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' })
           {/* Quick sell percentage pills */}
           {tradeType === 'SELL' && ownedShares > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Sell:</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Quick Sell:</span>
               {[25, 50, 75, 100].map((pct) => (
                 <button
                   key={pct}
@@ -357,51 +433,63 @@ export const QuickTradeModal = ({ isOpen, onClose, stock, defaultType = 'BUY' })
             </div>
           )}
 
-          {/* Financial Breakdown Card */}
+          {/* Plain-English Beginner Summary Box */}
           <div
             style={{
               backgroundColor: 'var(--bg-secondary)',
               borderRadius: 'var(--border-radius-sm)',
               padding: '12px 14px',
-              fontSize: '0.82rem',
+              fontSize: '0.8rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '6px',
+              borderLeft: `4px solid ${tradeType === 'BUY' ? 'var(--color-profit)' : 'var(--color-loss)'}`,
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
-              <span>Available Virtual Cash:</span>
-              <span className="mono-num" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                ₹{virtualCashAvailable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.84rem' }}>
+              <Sparkles size={14} color="var(--color-primary-blue)" />
+              <span>Beginner Trade Breakdown:</span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
-              <span>Brokerage & Exchange Taxes:</span>
-              <span style={{ color: 'var(--color-profit)', fontWeight: 600 }}>₹0.00 (Zero virtual fees)</span>
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontWeight: 700,
-                borderTop: '1px solid var(--border-subtle)',
-                paddingTop: '6px',
-                marginTop: '4px',
-              }}
-            >
-              <span>Total Order Value:</span>
-              <span
-                className="mono-num"
-                style={{
-                  fontSize: '1.05rem',
-                  color: tradeType === 'BUY' ? 'var(--color-profit)' : 'var(--color-loss)',
-                }}
-              >
-                ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
+            {tradeType === 'BUY' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                <div>
+                  • You are buying <b>{quantity} {quantity === 1 ? 'share' : 'shares'}</b> of <b>{stock.symbol}</b>.
+                </div>
+                <div>
+                  • Total cost: <b className="mono-num profit-text">₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</b> (Deducted from virtual cash).
+                </div>
+                <div>
+                  • Remaining wallet cash: <b className="mono-num">₹{remainingCashAfterBuy.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</b>.
+                </div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                  💡 <i>If {stock.symbol} rises above ₹{currentPrice.toFixed(2)}, your shares will gain profit!</i>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                {ownedShares > 0 ? (
+                  <>
+                    <div>
+                      • Selling <b>{quantity} {quantity === 1 ? 'share' : 'shares'}</b> @ ₹{currentPrice.toFixed(2)} (Bought @ ₹{avgBuyPrice.toFixed(2)}).
+                    </div>
+                    <div>
+                      • Estimated Outcome:{' '}
+                      <b className={`mono-num ${totalSellProfitLoss >= 0 ? 'profit-text' : 'loss-text'}`}>
+                        {totalSellProfitLoss >= 0 ? `+₹${totalSellProfitLoss.toFixed(2)} (+${sellProfitLossPercent.toFixed(2)}% Profit)` : `-₹${Math.abs(totalSellProfitLoss).toFixed(2)} (${sellProfitLossPercent.toFixed(2)}% Loss)`}
+                      </b>
+                    </div>
+                    <div>
+                      • Cash returned to wallet: <b className="mono-num">₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</b>.
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ color: 'var(--color-loss)' }}>
+                    You do not own any shares of {stock.symbol} yet. Click BUY above to invest!
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Warning Banner if insufficient funds or holdings */}

@@ -16,10 +16,12 @@ import {
   CheckCircle2,
   AlertTriangle,
   Trash2,
+  BookOpen,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../common/Toast';
+import { BeginnerGlossaryModal } from '../common/BeginnerGlossaryModal';
 import { api } from '../../services/api';
 import { INDICES, ALL_STOCKS } from '../../mockData/marketData';
 
@@ -44,6 +46,9 @@ export const Header = ({ onToggleSidebar }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const notifRef = useRef(null);
+
+  // Beginner Glossary Modal
+  const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
 
   const fetchNotifications = async () => {
     try {
@@ -291,7 +296,29 @@ export const Header = ({ onToggleSidebar }) => {
       </div>
 
       {/* Right: Actions, Theme Toggle, User Profile */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Beginner Handbook Shortcut */}
+        <button
+          onClick={() => setIsGlossaryOpen(true)}
+          style={{
+            background: 'rgba(37, 99, 235, 0.08)',
+            border: '1px solid rgba(37, 99, 235, 0.25)',
+            color: 'var(--color-primary-blue)',
+            padding: '7px 12px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+          title="Beginner Guide & Jargon Buster"
+        >
+          <BookOpen size={15} />
+          <span className="hide-on-mobile">Beginner Guide</span>
+        </button>
+
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
@@ -591,6 +618,31 @@ export const Header = ({ onToggleSidebar }) => {
               >
                 <SettingsIcon size={16} /> Settings
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsUserMenuOpen(false);
+                  setIsGlossaryOpen(true);
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  color: 'var(--color-primary-blue)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)')}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <BookOpen size={16} /> Beginner Handbook
+              </button>
               <div style={{ height: '1px', backgroundColor: 'var(--border-subtle)', margin: '4px 0' }} />
               <button
                 onClick={handleLogout}
@@ -615,6 +667,12 @@ export const Header = ({ onToggleSidebar }) => {
           )}
         </div>
       </div>
+
+      {/* Beginner Glossary Modal */}
+      <BeginnerGlossaryModal
+        isOpen={isGlossaryOpen}
+        onClose={() => setIsGlossaryOpen(false)}
+      />
     </header>
   );
 };

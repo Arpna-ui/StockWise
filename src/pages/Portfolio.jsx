@@ -17,12 +17,15 @@ import {
   Wallet,
   Clock,
   Sparkles,
+  BookOpen,
 } from 'lucide-react';
 import { ALL_STOCKS } from '../mockData/marketData';
 import { AllocationChart } from '../components/charts/AllocationChart';
 import { PerformanceChart } from '../components/charts/PerformanceChart';
 import { QuickTradeModal } from '../components/trade/QuickTradeModal';
 import { Badge } from '../components/common/Badge';
+import { InfoTooltip } from '../components/common/InfoTooltip';
+import { BeginnerGlossaryModal } from '../components/common/BeginnerGlossaryModal';
 import { useWallet } from '../context/WalletContext';
 import { api } from '../services/api';
 
@@ -38,6 +41,7 @@ export const Portfolio = () => {
   const [selectedStock, setSelectedStock] = useState(null);
   const [tradeType, setTradeType] = useState('BUY');
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
+  const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
 
   const fetchPortfolioAnalytics = async () => {
     try {
@@ -113,6 +117,13 @@ export const Portfolio = () => {
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
+            onClick={() => setIsGlossaryOpen(true)}
+            className="btn-secondary"
+            style={{ padding: '8px 14px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <BookOpen size={14} color="var(--color-primary-blue)" /> 🎓 Beginner Guide
+          </button>
+          <button
             onClick={() => {
               fetchPortfolioAnalytics();
               refreshWallet();
@@ -140,23 +151,24 @@ export const Portfolio = () => {
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          padding: '12px 18px',
+          padding: '14px 18px',
           backgroundColor: 'var(--bg-card)',
           border: '1px solid var(--border-subtle)',
           borderRadius: '10px',
-          fontSize: '0.82rem',
+          fontSize: '0.84rem',
           color: 'var(--text-secondary)',
+          lineHeight: 1.5,
         }}
       >
-        <Info size={18} color="var(--color-primary-blue)" style={{ flexShrink: 0 }} />
+        <Sparkles size={20} color="var(--color-primary-blue)" style={{ flexShrink: 0 }} />
         <div>
-          <strong style={{ color: 'var(--text-primary)' }}>Accounting Principle: </strong>
-          <span style={{ color: 'var(--color-profit)', fontWeight: 600 }}>Realized P&L</span> represents cash gains/losses locked in from completed sell orders.
-          <span style={{ color: 'var(--color-primary-blue)', fontWeight: 600, marginLeft: '6px' }}>Unrealized P&L</span> represents paper fluctuations in your active holdings calculated at current market prices.
+          <strong style={{ color: 'var(--text-primary)' }}>Beginner Note on Profit / Loss: </strong>
+          <span style={{ color: 'var(--color-profit)', fontWeight: 700 }}>Realized P&L</span> represents cash in the bank already locked in from sold stocks.
+          <span style={{ color: 'var(--color-primary-blue)', fontWeight: 700, marginLeft: '8px' }}>Unrealized P&L</span> represents paper fluctuations in stocks you still own that will fluctuate with live market prices until you sell.
         </div>
       </div>
 
-      {/* 7 Core Portfolio Summary Metrics Cards */}
+      {/* 7 Core Portfolio Summary Metrics Cards with InfoTooltips */}
       <div
         style={{
           display: 'grid',
@@ -166,9 +178,16 @@ export const Portfolio = () => {
       >
         {/* 1. Total Portfolio Value */}
         <div className="card">
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            1. Total Portfolio Value
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              1. Total Portfolio Value
+            </span>
+            <InfoTooltip
+              title="Total Portfolio Value"
+              text="Your overall simulated wealth: Available virtual cash + the current live worth of all stocks you own."
+              tip="Starts at ₹1,00,000. Any amount above that is your total net gain!"
+            />
+          </div>
           <div className="mono-num" style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4px' }}>
             ₹{Number(totalPortfolioValue).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
@@ -181,9 +200,16 @@ export const Portfolio = () => {
 
         {/* 2. Total Investment Cost */}
         <div className="card">
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            2. Total Investment
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              2. Total Investment
+            </span>
+            <InfoTooltip
+              title="Total Investment"
+              text="The original cash amount you paid to buy all the shares currently in your portfolio."
+              tip="Compare this with Current Market Value to see if your current holdings are in profit."
+            />
+          </div>
           <div className="mono-num" style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4px' }}>
             ₹{Number(totalInvestment).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
@@ -194,9 +220,16 @@ export const Portfolio = () => {
 
         {/* 3. Available Cash */}
         <div className="card">
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            3. Available Virtual Cash
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              3. Available Virtual Cash
+            </span>
+            <InfoTooltip
+              title="Available Virtual Cash"
+              text="Uninvested money ready to spend on new trades. Not locked into any stocks."
+              tip="Keep cash in reserve so you can buy stocks when good buying opportunities appear."
+            />
+          </div>
           <div className="mono-num" style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4px', color: 'var(--color-profit)' }}>
             ₹{Number(availableCash).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
@@ -207,9 +240,16 @@ export const Portfolio = () => {
 
         {/* 4. Current Market Value */}
         <div className="card">
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            4. Current Market Value
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              4. Current Market Value
+            </span>
+            <InfoTooltip
+              title="Current Market Value"
+              text="What all your active shares are worth right now at current live stock market prices."
+              tip="If this is higher than your Total Investment, you are in unrealized profit!"
+            />
+          </div>
           <div className="mono-num" style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4px' }}>
             ₹{Number(currentMarketValue).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
@@ -220,9 +260,16 @@ export const Portfolio = () => {
 
         {/* 5. Realised Profit / Loss */}
         <div className="card">
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            5. Realised Profit / Loss
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              5. Realised Profit / Loss
+            </span>
+            <InfoTooltip
+              title="Realised Profit / Loss"
+              text="Permanent cash gained or lost from stocks you already sold. This money is already safely in your wallet."
+              tip="You only realize profit or loss when you click SELL."
+            />
+          </div>
           <div
             className={`mono-num ${isRealizedProfit ? 'profit-text' : 'loss-text'}`}
             style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4px' }}
@@ -230,15 +277,22 @@ export const Portfolio = () => {
             {isRealizedProfit ? '+' : ''}₹{Number(realizedPnL).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '6px', display: 'block' }}>
-            Settled Gains on Sells
+            Settled Gains on Completed Sells
           </span>
         </div>
 
         {/* 6. Unrealised Profit / Loss */}
         <div className="card">
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            6. Unrealised Profit / Loss
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              6. Unrealised Profit / Loss
+            </span>
+            <InfoTooltip
+              title="Unrealised Profit / Loss"
+              text="Paper gains or losses on shares you still hold. It changes every second with market prices and only locks in when you sell."
+              tip="Don't panic if this turns temporarily red. The market moves up and down!"
+            />
+          </div>
           <div
             className={`mono-num ${isUnrealizedProfit ? 'profit-text' : 'loss-text'}`}
             style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4px' }}
@@ -252,9 +306,15 @@ export const Portfolio = () => {
 
         {/* 7. Overall Returns */}
         <div className="card">
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            7. Overall Net Returns
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              7. Overall Net Returns
+            </span>
+            <InfoTooltip
+              title="Overall Net Returns"
+              text="The net percentage growth of your account against your original ₹1,00,000 starting cash."
+            />
+          </div>
           <div
             className={`mono-num ${isOverallProfit ? 'profit-text' : 'loss-text'}`}
             style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4px' }}
@@ -391,9 +451,16 @@ export const Portfolio = () => {
             <ShieldCheck size={24} color="var(--color-primary-blue)" />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Portfolio Health
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Portfolio Health & Diversification
+              </span>
+              <InfoTooltip
+                title="What is Diversification?"
+                text="Spreading your investments across different sectors (IT, Banking, Energy) prevents a bad day in one industry from damaging your whole portfolio."
+                tip="Aim to hold stocks in at least 3 distinct sectors."
+              />
+            </div>
             <div style={{ marginTop: '2px' }}>
               <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
                 {concentration.diversificationStatus || 'Evaluating'}
@@ -454,12 +521,42 @@ export const Portfolio = () => {
                 <tr>
                   <th>Company Name & Symbol</th>
                   <th>Sector</th>
-                  <th style={{ textAlign: 'right' }}>Quantity</th>
-                  <th style={{ textAlign: 'right' }}>Avg. Purchase Price</th>
-                  <th style={{ textAlign: 'right' }}>Current Price</th>
-                  <th style={{ textAlign: 'right' }}>Invested Amount</th>
-                  <th style={{ textAlign: 'right' }}>Current Value</th>
-                  <th style={{ textAlign: 'right' }}>Profit / Loss</th>
+                  <th style={{ textAlign: 'right' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Quantity
+                      <InfoTooltip title="Quantity" text="Total number of shares you currently own." />
+                    </span>
+                  </th>
+                  <th style={{ textAlign: 'right' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Avg. Purchase Price
+                      <InfoTooltip title="Average Purchase Price" text="The average cost per share when you purchased this stock." />
+                    </span>
+                  </th>
+                  <th style={{ textAlign: 'right' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Current Price
+                      <InfoTooltip title="Current Price" text="The latest market price per share on the NSE/BSE." />
+                    </span>
+                  </th>
+                  <th style={{ textAlign: 'right' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Invested Amount
+                      <InfoTooltip title="Invested Amount" text="Total virtual money you paid to acquire these shares (Quantity × Avg Price)." />
+                    </span>
+                  </th>
+                  <th style={{ textAlign: 'right' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Current Value
+                      <InfoTooltip title="Current Value" text="What your shares are worth right now (Quantity × Current Price)." />
+                    </span>
+                  </th>
+                  <th style={{ textAlign: 'right' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Profit / Loss
+                      <InfoTooltip title="Profit / Loss" text="The cash difference between what you paid and current market value." />
+                    </span>
+                  </th>
                   <th style={{ textAlign: 'right' }}>Percentage Return</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
@@ -577,6 +674,12 @@ export const Portfolio = () => {
         onClose={handleModalClose}
         stock={selectedStock}
         defaultType={tradeType}
+      />
+
+      {/* Beginner Glossary Modal */}
+      <BeginnerGlossaryModal
+        isOpen={isGlossaryOpen}
+        onClose={() => setIsGlossaryOpen(false)}
       />
     </div>
   );
