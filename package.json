@@ -1,0 +1,47 @@
+{
+  "name": "stockwise",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n \"CLIENT,SERVER\" -c \"cyan,green\" \"vite\" \"nodemon server/index.js\"",
+    "dev:client": "vite",
+    "dev:server": "nodemon server/index.js",
+    "start": "node server/index.js",
+    "server": "node server/index.js",
+    "test": "node server/testAuthSuite.js && node server/testBackendArchitecture.js && node server/testWalletSuite.js && node server/testMarketDataSuite.js && node server/testTradeEngineSuite.js && node server/testPortfolioAnalyticsSuite.js && node server/testWatchlistTransactionSuite.js && node server/testAdvancedFeaturesSuite.js && node server/testCompleteWorkflowsAudit.js",
+    "test:auth": "node server/testAuthSuite.js",
+    "test:backend": "node server/testBackendArchitecture.js",
+    "test:wallet": "node server/testWalletSuite.js",
+    "test:market": "node server/testMarketDataSuite.js",
+    "test:trade": "node server/testTradeEngineSuite.js",
+    "test:portfolio": "node server/testPortfolioAnalyticsSuite.js",
+    "test:watchlist": "node server/testWatchlistTransactionSuite.js",
+    "test:advanced": "node server/testAdvancedFeaturesSuite.js",
+    "test:audit": "node server/testCompleteWorkflowsAudit.js",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^1.16.0",
+    "mongoose": "^8.9.5",
+    "nodemailer": "^6.9.16",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "recharts": "^2.13.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "vite": "^5.4.11"
+  }
+}

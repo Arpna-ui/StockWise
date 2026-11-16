@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: stockwise-backend
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm run server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_URL
+        sync: false
+      - key: EMAIL_SERVICE
+        value: console
+      - key: MARKET_DATA_PROVIDER
+        value: sample
+      - key: MARKET_DATA_CACHE_TTL_SECONDS
+        value: 60
